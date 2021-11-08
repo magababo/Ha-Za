@@ -38,9 +38,7 @@ const MakeContainer = styled.div`
 
 const Mainpage = (): JSX.Element => {
   const level = ['ToDo', 'Doing', 'Done'];
-  // const [content, setContent] = useState('');
   const [list, setList] = useState<{ id: number; type: string; content: string }[]>([]);
-
   const listNumber = list.length === 0 ? 1 : list.length + 1;
   const [item, setItem] = useState({
     id: listNumber,
@@ -48,22 +46,7 @@ const Mainpage = (): JSX.Element => {
     content: ''
   });
   const [openInput, setOpenInput] = useState(false);
-
   const token = localStorage.getItem('accessToken');
-
-  // const addList = () => {
-  //   const newTodo = {
-  //     id: list.length === 0 ? 1 : list.length + 1,
-  //     type: 'ToDo',
-  //     content: content
-  //   };
-  //   if (content !== '') {
-  //     setList([...list, newTodo]);
-  //     setOpenInput(false);
-  //     setContent('');
-  //     sessionStorage.setItem(`${listNumber}`, JSON.stringify(newTodo));
-  //   }
-  // };
   const handleInput = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setItem({ ...item, [key]: e.target.value, id: listNumber });
   };
@@ -88,13 +71,11 @@ const Mainpage = (): JSX.Element => {
       setList([...list]);
       console.log('list', list);
       console.log('session', sessionStorage);
-      // sessionStorage.setItem(`${listNumber}`, JSON.stringify(item));
       sessionStorage.setItem('list', JSON.stringify(list));
       setOpenInput(false);
     }
   };
-  // console.log('list:', list);
-  // console.log(JSON.parse(sessionStorage[1]));
+
   useEffect(() => {
     if (token) {
       axios
@@ -117,32 +98,6 @@ const Mainpage = (): JSX.Element => {
       }
     }
   }, []);
-  // const ids = Object.keys(sessionStorage);
-  // console.log('ids:', ids);
-  // const getItems = () => {
-  //   if (!token) {
-  //     for (let i = 0; i <= ids.length; i++) {
-  //       let sessionItem = JSON.parse(sessionStorage[ids[i]]);
-  //       // list.push(sessionItem);
-  //       setList([...list, sessionItem]);
-  //     }
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (!token) {
-  //     let sessionItem;
-  //     if (ids.length) {
-  //       for (let i = 0; i <= ids.length; i++) {
-  //         // sessionItem = JSON.parse(sessionStorage[ids[i]]);
-  //         console.log('----', sessionItem);
-  //         // list.push(sessionItem);
-  //         // setList([...list, sessionItem]);
-  //       }
-  //     }
-  //   }
-  //   // console.log('items:', getItems());
-  // }, []);
 
   return (
     <MainpageWrapper>

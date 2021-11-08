@@ -31,13 +31,6 @@ type ItemContainerProps = {
 };
 
 function ItemContainer({ level, list }: ItemContainerProps) {
-  const changeContent = (id: number, content: string) => {
-    const findItem = list.filter((el) => {
-      return el.id === id;
-    })[0];
-    findItem.content = content;
-    // console.log('1111111:', findItem);
-  };
   return (
     <IC>
       <State>{level}</State>
@@ -60,7 +53,7 @@ function ItemContainer({ level, list }: ItemContainerProps) {
                   key={key}
                   content={el.content}
                   type={el.type}
-                  changeContent={changeContent}
+                  itemList={list}
                 />
               );
             })}
