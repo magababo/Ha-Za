@@ -1,10 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import ItemCard from '../components/maincomponents/ItemCard';
 import ItemContainer from '../components/maincomponents/ItemContainer';
-import dummyTodo from '../dummydata';
 import { Colors } from '../components/utils/_var';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 
 export const MainpageWrapper = styled.div`
   .main {
@@ -28,7 +27,7 @@ const MainContainer = styled.div`
 `;
 
 const MakeContainer = styled.div`
-  // border: 1px solid black;
+  // border: 1px solid white;
   /* width: 75.1%; */
   margin-bottom: 10px;
   /* modified values */

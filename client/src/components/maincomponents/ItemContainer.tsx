@@ -34,11 +34,17 @@ function ItemContainer({ level, list }: ItemContainerProps) {
   return (
     <IC>
       <State>{level}</State>
-      {list.length === 0 && level === 'ToDo'
+      {list.filter((el) => {
+        return el.type === 'ToDo';
+      }).length === 0 && level === 'ToDo'
         ? 'Please add your New ToDo List'
-        : list.length === 0 && level === 'Doing'
+        : list.filter((el) => {
+            return el.type === 'Doing';
+          }).length === 0 && level === 'Doing'
         ? 'Please add your Doing List'
-        : list.length === 0 && level === 'Done'
+        : list.filter((el) => {
+            return el.type === 'Done';
+          }).length === 0 && level === 'Done'
         ? 'Please add your Done List'
         : list
             .slice(0)

@@ -1,6 +1,6 @@
 // import { useEffect } from 'react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../utils/_var';
 
@@ -105,6 +105,7 @@ function ItemCard({ id, content, type, itemList }: ItemCardProps) {
     type: type,
     content: content
   });
+
   const handleEditInput =
     (key: string) =>
     (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
@@ -143,7 +144,12 @@ function ItemCard({ id, content, type, itemList }: ItemCardProps) {
     <Card>
       <span>
         <Space>{id}</Space>
-        <select onChange={handleEditInput('type')} value={item.type}>
+        <select
+          onChange={(e) => {
+            handleEditInput('type')(e);
+            editItem();
+          }}
+          value={item.type}>
           <option>ToDo</option>
           <option>Doing</option>
           <option>Done</option>
@@ -157,7 +163,7 @@ function ItemCard({ id, content, type, itemList }: ItemCardProps) {
       {isEdit ? (
         <ButtonContainer>
           <Button
-            onClick={() => {
+            onClick={(e) => {
               setIsEdit(false);
               editItem();
             }}>
