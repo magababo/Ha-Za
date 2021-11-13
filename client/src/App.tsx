@@ -70,10 +70,16 @@ function App() {
             handleMessage={handleMessage}
             handleNotice={handleNotice}
           />
-          <Notice/>
+          <Notice />
           {openModal ? <Modal handleModal={handleModalClose} login={handleLoginModalOpen} /> : null}
           <Switch>
-            <Route exact path="/" component={Mainpage} />
+            <Route exact path="/">
+              <Mainpage
+                modal={handleModalOpen}
+                handleMessage={handleMessage}
+                handleNotice={handleNotice}
+              />
+            </Route>
             <Route path="/mypage">
               {isLogin ? (
                 <Mypage
