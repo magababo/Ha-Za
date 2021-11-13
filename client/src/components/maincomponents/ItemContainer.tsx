@@ -10,17 +10,19 @@ const IC = styled.div`
   overflow: auto;
   /* modified values */
   width: 100%;
-  height: 70vh; 
+  height: 70vh;
   margin: auto 1rem;
-  border: 1px solid ${Colors.mediumGray};
+  border: 1px solid ${Colors.darkGray};
+  border-radius: 5px;
   color: ${Colors.mediumGray};
+  background-color: black;
 `;
 
 const State = styled.div`
   font-weight: bold;
   /* font-size: 30px; */
   /* modified values */
-  font-size: 1.7rem;
+  font-size: 1.5rem;
 `;
 
 type ItemContainerProps = {
@@ -29,18 +31,21 @@ type ItemContainerProps = {
 };
 
 function ItemContainer({ level, list }: ItemContainerProps) {
-  const changeContent = (id: number, content: string) => {
-    const findItem = list.filter((el) => {
-      return el.id === id;
-    })[0];
-    findItem.content = content;
-    console.log('1111111:', findItem);
-  };
   return (
     <IC>
       <State>{level}</State>
-      {list.length === 0
-        ? 'Please add your ToDo List'
+      {list.filter((el) => {
+        return el.type === 'ToDo';
+      }).length === 0 && level === 'ToDo'
+        ? 'Please add your New ToDo List'
+        : list.filter((el) => {
+            return el.type === 'Doing';
+          }).length === 0 && level === 'Doing'
+        ? 'Please add your Doing List'
+        : list.filter((el) => {
+            return el.type === 'Done';
+          }).length === 0 && level === 'Done'
+        ? 'Please add your Done List'
         : list
             .slice(0)
             .reverse()
@@ -54,7 +59,7 @@ function ItemContainer({ level, list }: ItemContainerProps) {
                   key={key}
                   content={el.content}
                   type={el.type}
-                  changeContent={changeContent}
+                  itemList={list}
                 />
               );
             })}

@@ -1,7 +1,9 @@
+import axios, { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ItemContainer from '../components/maincomponents/ItemContainer';
-import dummyTodo from '../dummydata';
+import { Colors } from '../components/utils/_var';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 
 export const MainpageWrapper = styled.div`
   .main {
@@ -25,7 +27,7 @@ const MainContainer = styled.div`
 `;
 
 const MakeContainer = styled.div`
-  // border: 1px solid black;
+  // border: 1px solid white;
   /* width: 75.1%; */
   margin-bottom: 10px;
   /* modified values */
@@ -35,42 +37,67 @@ const MakeContainer = styled.div`
 
 const Mainpage = (): JSX.Element => {
   const level = ['ToDo', 'Doing', 'Done'];
-  const [content, setContent] = useState('');
+  const [list, setList] = useState<{ id: number; type: string; content: string }[]>([]);
+  const listNumber = list.length === 0 ? 1 : list.length + 1;
+  const [item, setItem] = useState({
+    id: listNumber,
+    type: 'ToDo',
+    content: ''
+  });
   const [openInput, setOpenInput] = useState(false);
-  const [list, setList] = useState([...dummyTodo]);
-  // const [list, setList] = useState([]);
-  const listNumber = list.length + 1;
-  const addList = () => {
-    const newTodo = {
-      id: list.length === 0 ? 1 : list.length + 1,
-      type: 'ToDo',
-      content: content
-    };
-    if (content !== '') {
-      setList([...list, newTodo]);
+  const token = localStorage.getItem('accessToken');
+  const handleInput = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setItem({ ...item, [key]: e.target.value, id: listNumber });
+  };
+  const handleAddItem = () => {
+    if (token) {
+      // Login Mode
+      axios
+        .post(`${process.env.REACT_APP_API_URL}/todo`, item, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          withCredentials: true
+        })
+        .then(() => {
+          setOpenInput(false);
+          window.location.replace('/');
+        })
+        .catch((error) => {
+          console.log(error.response);
+        });
+    } else {
+      // Guest Mode
+      list.push(item);
+      setList([...list]);
+      console.log('list', list);
+      console.log('session', sessionStorage);
+      sessionStorage.setItem('list', JSON.stringify(list));
       setOpenInput(false);
-      setContent('');
-      sessionStorage.setItem(`${listNumber}`, JSON.stringify(newTodo));
     }
   };
-  const ids = Object.keys(sessionStorage).sort();
-  interface getItems {
-    id: number;
-    type: string;
-    content: string;
-  }
-  let arr: { id: number; type: string; content: string }[] = [];
-  // let objs: getItems = JSON.parse(sessionStorage.getItem('10'));
-  // for (let i: number = 0; i < ids.length; i++) {
-  //   arr.push(JSON.parse(sessionStorage.getItem(`${ids[i]}`)));
-  // }
+
   useEffect(() => {
-    console.log(Object.keys(sessionStorage).sort());
-    console.log(list);
-    console.log(typeof sessionStorage.getItem('10'));
-    console.log(sessionStorage.getItem('10'));
-    // console.log(window.sessionStorage);
-  }, [list]);
+    if (token) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/todo`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then((res: AxiosResponse<any>) => {
+          console.log('res:', res.data.data.userTodo);
+          setList(res.data.data.userTodo);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      if (sessionStorage.length > 0) {
+        setList(JSON.parse(sessionStorage['list']));
+      }
+    }
+  }, []);
+
   return (
     <MainpageWrapper>
       <div className="main">
@@ -92,16 +119,8 @@ const Mainpage = (): JSX.Element => {
           )}
           {openInput ? (
             <>
-              <input
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setContent(e.target.value);
-                }}></input>
-              <button
-                onClick={() => {
-                  addList();
-                }}>
-                add
-              </button>
+              <input onChange={handleInput('content')}></input>
+              <button onClick={handleAddItem}>add</button>
             </>
           ) : null}
         </MakeContainer>

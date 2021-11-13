@@ -8,7 +8,8 @@ module.exports = async (req, res) => {
     if (!accessTokenData) {
       return res.status(401).send({ message: "You're not logged in" });
     } else {
-      const { userId } = req.body;
+      // const { userId } = req.body;
+      const userId = accessTokenData.id;
 
       const userTodo = await todos.findAll({
         where: {
@@ -25,5 +26,6 @@ module.exports = async (req, res) => {
     }
   } catch (err) {
     res.status(400).json({ message: 'error' });
+    console.log(err);
   }
 };
