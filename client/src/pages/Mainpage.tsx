@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../modules';
 import { setTodo, setDoing, setDone, postTodo, editTodo, deleteTodo } from '../modules/todo';
+import axios from 'axios';
 import styled from 'styled-components';
 import { Colors } from 'src/components/utils/_var';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-
 import {
   DragDropContext,
   Draggable,
@@ -79,22 +79,14 @@ const AddButton = styled.button`
   }
 `;
 
-// const ContentButton = styled.div`
-//   cursor: pointer;
-//   background-color: transparent;
-//   color: ${Colors.lightGray};
-//   outline: none;
-//   border: none;
-//   margin-bottom: 0.5rem;
-//   font-size: 1rem;
-//   &:hover {
-//     color: ${Colors.green};
-//   }
-// `;
-
 const AddInput = styled.input`
   outline: none;
 `;
+type MainpageProp = {
+  modal: () => void;
+  handleMessage: (a: string) => void;
+  handleNotice: (a: boolean) => void;
+};
 
 const reorder = (list: Item[], startIndex: number, endIndex: number): Item[] => {
   const result = [...list];
@@ -145,11 +137,12 @@ const getListStyle = (isDraggingOver: boolean): {} => ({
   border: `1px solid ${Colors.darkGray}`
 });
 
-function Mainpage() {
+function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
+  const isLogin = useSelector((state: RootState) => state.user).token;
+  const token = isLogin;
   const todoList = useSelector((state: RootState) => state.todo);
   const dispatch = useDispatch();
 
-  // console.log(todoList);
   let tempTodos: Array<any> = todoList.todoItem;
   let tempDoings: Array<any> = todoList.doingItem;
   let tempDones: Array<any> = todoList.doneItem;
@@ -209,8 +202,35 @@ function Mainpage() {
 
         resultFromMove.droppable.map((el) => (el.type = 'todo'));
         resultFromMove.droppable3.map((el) => (el.type = 'done'));
-        dispatch(setTodo(resultFromMove.droppable));
-        dispatch(setDone(resultFromMove.droppable3));
+
+        if (isLogin) {
+          axios
+            .patch(
+              process.env.REACT_APP_API_URL + '/type',
+              { todo: resultFromMove.droppable, done: resultFromMove.droppable3 },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                withCredentials: true
+              }
+            )
+            .then((res) => {
+              if (res.status === 200) {
+                dispatch(setTodo(resultFromMove.droppable));
+                dispatch(setDone(resultFromMove.droppable3));
+              }
+            })
+            .catch((error) => {
+              if (error.response.data.message === "You're not logged in") {
+                modal();
+              } else console.log(error.response.data.message);
+            });
+        } else {
+          dispatch(setTodo(resultFromMove.droppable));
+          dispatch(setDone(resultFromMove.droppable3));
+        }
       } else if (source.droppableId !== 'droppable' && destination.droppableId !== 'droppable') {
         setTodos({
           ...todos,
@@ -219,8 +239,35 @@ function Mainpage() {
         });
         resultFromMove.droppable2.map((el) => (el.type = 'doing'));
         resultFromMove.droppable3.map((el) => (el.type = 'done'));
-        dispatch(setDoing(resultFromMove.droppable2));
-        dispatch(setDone(resultFromMove.droppable3));
+
+        if (isLogin) {
+          axios
+            .patch(
+              process.env.REACT_APP_API_URL + '/type',
+              { doing: resultFromMove.droppable2, done: resultFromMove.droppable3 },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                withCredentials: true
+              }
+            )
+            .then((res) => {
+              if (res.status === 200) {
+                dispatch(setDoing(resultFromMove.droppable2));
+                dispatch(setDone(resultFromMove.droppable3));
+              }
+            })
+            .catch((error) => {
+              if (error.response.data.message === "You're not logged in") {
+                modal();
+              } else console.log(error.response.data.message);
+            });
+        } else {
+          dispatch(setDoing(resultFromMove.droppable2));
+          dispatch(setDone(resultFromMove.droppable3));
+        }
       } else if (source.droppableId !== 'droppable3' && destination.droppableId !== 'droppable3') {
         setTodos({
           ...todos,
@@ -229,8 +276,35 @@ function Mainpage() {
         });
         resultFromMove.droppable.map((el) => (el.type = 'todo'));
         resultFromMove.droppable2.map((el) => (el.type = 'doing'));
-        dispatch(setTodo(resultFromMove.droppable));
-        dispatch(setDoing(resultFromMove.droppable2));
+
+        if (isLogin) {
+          axios
+            .patch(
+              process.env.REACT_APP_API_URL + '/type',
+              { todo: resultFromMove.droppable, doing: resultFromMove.droppable2 },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                withCredentials: true
+              }
+            )
+            .then((res) => {
+              if (res.status === 200) {
+                dispatch(setTodo(resultFromMove.droppable));
+                dispatch(setDoing(resultFromMove.droppable2));
+              }
+            })
+            .catch((error) => {
+              if (error.response.data.message === "You're not logged in") {
+                modal();
+              } else console.log(error.response.data.message);
+            });
+        } else {
+          dispatch(setTodo(resultFromMove.droppable));
+          dispatch(setDoing(resultFromMove.droppable2));
+        }
       }
     }
   }
@@ -246,14 +320,48 @@ function Mainpage() {
     else setAddOpen(false);
   };
   const handleEditOpen = (item: any) => {
-    console.log(item.id);
+    // console.log(item.id);
     if (!editOpen) {
       setEditOpen(true);
       setEditId(item.id);
       setEditInput('');
     } else if (editOpen && item.id === editId) {
-      dispatch(editTodo(item.id, item.type, editInput));
-      window.location.replace('/');
+      if (editInput.length < 1) {
+        handleNotice(true);
+        handleMessage('할 일을 입력해주세요');
+      } else if (editInput.length > 15) {
+        handleNotice(true);
+        handleMessage('할 일은 15자 내로 입력해주세요');
+      } else {
+        if (isLogin) {
+          axios
+            .patch(
+              process.env.REACT_APP_API_URL + '/todo',
+              { ...item, content: editInput },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                withCredentials: true
+              }
+            )
+            .then((res) => {
+              if (res.status === 200) {
+                dispatch(editTodo(item.id, item.type, editInput));
+                window.location.replace('/');
+              }
+            })
+            .catch((error) => {
+              if (error.response.data.message === "You're not logged in") {
+                modal();
+              } else console.log(error.response.data.message);
+            });
+        } else {
+          dispatch(editTodo(item.id, item.type, editInput));
+          window.location.replace('/');
+        }
+      }
     } else {
       setEditOpen(false);
       setEditId(null);
@@ -262,16 +370,41 @@ function Mainpage() {
   };
 
   const addTodo = () => {
-    if (input.length) {
+    if (input.length > 15) {
+      handleNotice(true);
+      handleMessage('할 일은 15자 내로 입력해주세요');
+    } else if (input.length < 1) {
+      handleNotice(true);
+      handleMessage('할 일을 입력해주세요');
+    } else {
       const todoItem = {
         id: String(tempTodos.length + tempDoings.length + tempDones.length + 1),
         type: 'todo',
         content: input
       };
-      console.log(todoItem);
-      dispatch(postTodo(todoItem));
-      window.location.replace('/');
-    } else console.log('empty input'); // 추후에 모달창으로 대체
+
+      if (isLogin) {
+        axios
+          .post(`${process.env.REACT_APP_API_URL}/todo`, todoItem, {
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            withCredentials: true
+          })
+          .then((res) => {
+            if (res.status === 200) {
+              dispatch(postTodo(todoItem));
+              window.location.replace('/');
+            }
+          })
+          .catch((error) => {
+            if (error.response.data.message === "You're not logged in") {
+              modal();
+            } else console.log(error.response.data.message);
+          });
+      } else {
+        dispatch(postTodo(todoItem));
+        window.location.replace('/');
+      }
+    }
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -282,9 +415,28 @@ function Mainpage() {
     setEditInput(e.target.value);
   };
   const handleDelete = (item: any) => {
-    // console.log(item);
-    dispatch(deleteTodo(item.id, item.type));
-    window.location.replace('/');
+    if (isLogin) {
+      axios
+        .delete(`${process.env.REACT_APP_API_URL}/todo`, {
+          data: { item },
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          withCredentials: true
+        })
+        .then((res) => {
+          if (res.status === 200) {
+            dispatch(deleteTodo(item.id, item.type));
+            window.location.replace('/');
+          }
+        })
+        .catch((error) => {
+          if (error.response.data.message === "You're not logged in") {
+            modal();
+          } else console.log(error.response.data.message);
+        });
+    } else {
+      dispatch(deleteTodo(item.id, item.type));
+      window.location.replace('/');
+    }
   };
 
   return (
@@ -331,13 +483,13 @@ function Mainpage() {
                             <div className="icon-container">
                               <FontAwesomeIcon
                                 className="icon"
-                                onClick={() => handleEditOpen({ id: item.id, type: 'ToDo' })}
+                                onClick={() => handleEditOpen({ id: item.id, type: 'todo' })}
                                 icon={faEdit}
                                 size="1x"
                               />
                               <FontAwesomeIcon
                                 className="icon"
-                                onClick={() => handleDelete({ id: item.id, type: 'ToDo' })}
+                                onClick={() => handleDelete({ id: item.id, type: 'todo' })}
                                 icon={faTrash}
                                 size="1x"
                               />
@@ -380,13 +532,13 @@ function Mainpage() {
                           <div className="icon-container">
                             <FontAwesomeIcon
                               className="icon"
-                              onClick={() => handleEditOpen({ id: item.id, type: 'Doing' })}
+                              onClick={() => handleEditOpen({ id: item.id, type: 'doing' })}
                               icon={faEdit}
                               size="1x"
                             />
                             <FontAwesomeIcon
                               className="icon"
-                              onClick={() => handleDelete({ id: item.id, type: 'Doing' })}
+                              onClick={() => handleDelete({ id: item.id, type: 'doing' })}
                               icon={faTrash}
                               size="1x"
                             />
@@ -428,13 +580,13 @@ function Mainpage() {
                           <div className="icon-container">
                             <FontAwesomeIcon
                               className="icon"
-                              onClick={() => handleEditOpen({ id: item.id, type: 'Done' })}
+                              onClick={() => handleEditOpen({ id: item.id, type: 'done' })}
                               icon={faEdit}
                               size="1x"
                             />
                             <FontAwesomeIcon
                               className="icon"
-                              onClick={() => handleDelete({ id: item.id, type: 'Done' })}
+                              onClick={() => handleDelete({ id: item.id, type: 'done' })}
                               icon={faTrash}
                               size="1x"
                             />
