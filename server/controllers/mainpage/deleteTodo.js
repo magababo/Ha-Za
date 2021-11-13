@@ -9,13 +9,14 @@ module.exports = async (req, res) => {
       return res.status(401).send({ message: "You're not logged in" });
     } else {
       const userId = accessTokenData.id;
-      const { id, type, content } = req.body;
+      const { id, type } = req.body.item;
 
-      const makeTodoList = await todos.destroy({
-        // userId: userId,
-        // type: type,
-        // content: content
-        where: { id: id }
+      await todos.destroy({
+        where: {
+          userId: userId,
+          todoId: id,
+          type: type
+        }
       });
 
       return res.status(200).json({
