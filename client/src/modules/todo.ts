@@ -1,9 +1,15 @@
+const SET_ITEMS = 'todo/SET_ITEMS' as const;
 const SET_TODO = 'todo/SET_TODO' as const;
 const SET_DOING = 'todo/SET_DOING' as const;
 const SET_DONE = 'todo/SET_DONE' as const;
 const POST_TODO = 'todo/POST_TODO' as const;
 const DELETE_TODO = 'todo/DELETE_TODO' as const;
 const EDIT_TODO = 'todo/EDIT_TODO' as const;
+
+export const setItems = (allTodos: Array<object>, allDoings: Array<object>, allDones: Array<object>) => ({
+  type: SET_ITEMS,
+  payload: {allTodos, allDoings, allDones}
+});
 
 export const setTodo = (todoInfo: Array<object>) => ({
   type: SET_TODO,
@@ -36,6 +42,7 @@ export const editTodo = (id: string, type: string, content: string) => ({
 });
 
 type TodoAction =
+  | ReturnType<typeof setItems>
   | ReturnType<typeof setTodo>
   | ReturnType<typeof setDoing>
   | ReturnType<typeof setDone>
@@ -73,6 +80,12 @@ const initialState: TodoState = {
 
 function todo(state: TodoState = initialState, action: TodoAction): TodoState {
   switch (action.type) {
+    case SET_ITEMS:
+      return {
+        todoItem: action.payload.allTodos,
+        doingItem: action.payload.allDoings,
+        doneItem: action.payload.allDones
+      };
     case SET_TODO:
       return {
         ...state,
