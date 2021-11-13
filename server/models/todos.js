@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   todos.init({
     userId: DataTypes.INTEGER,
     type: DataTypes.STRING,
+    todoId: DataTypes.STRING,
     content: DataTypes.STRING
   }, {
     sequelize,
