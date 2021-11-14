@@ -57,23 +57,25 @@ type TodoState = {
 };
 
 const initialState: TodoState = {
-  todoItem: [
-    {
-      id: '1',
-      type: 'todo',
-      content: '할 일1'
-    },
-    {
-      id: '2',
-      type: 'todo',
-      content: '할 일2'
-    },
-    {
-      id: '3',
-      type: 'todo',
-      content: '할 일3'
-    }
-  ],
+  // FOR TESTING
+  // todoItem: [
+  //   {
+  //     id: '1',
+  //     type: 'todo',
+  //     content: '할 일1'
+  //   },
+  //   {
+  //     id: '2',
+  //     type: 'todo',
+  //     content: '할 일2'
+  //   },
+  //   {
+  //     id: '3',
+  //     type: 'todo',
+  //     content: '할 일3'
+  //   }
+  // ],
+  todoItem: [],
   doingItem: [],
   doneItem: []
 };
@@ -107,12 +109,12 @@ function todo(state: TodoState = initialState, action: TodoAction): TodoState {
         todoItem: [...state.todoItem, action.payload]
       };
     case DELETE_TODO:
-      if (action.payload.type === 'ToDo') {
+      if (action.payload.type === 'todo') {
         return {
           ...state,
           todoItem: state.todoItem.filter((el: any) => el.id !== action.payload.id)
         };
-      } else if (action.payload.type === 'Doing') {
+      } else if (action.payload.type === 'doing') {
         return {
           ...state,
           doingItem: state.doingItem.filter((el: any) => el.id !== action.payload.id)
@@ -125,12 +127,12 @@ function todo(state: TodoState = initialState, action: TodoAction): TodoState {
       }
 
     case EDIT_TODO:
-      if (action.payload.type === 'ToDo') {
+      if (action.payload.type === 'todo') {
         return {
           ...state,
           todoItem: state.todoItem.map((el: any) => el.id === action.payload.id ? {...el, content: action.payload.content} : el)
         };
-      } else if (action.payload.type === 'Doing') {
+      } else if (action.payload.type === 'doing') {
         return {
           ...state,
           doingItem: state.doingItem.map((el: any) => el.id === action.payload.id ? {...el, content: action.payload.content} : el)
