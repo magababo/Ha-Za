@@ -1,13 +1,14 @@
 import React from 'react';
 import { useState } from 'react';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import axios, { AxiosResponse } from 'axios';
 import { userLogin } from '../modules/user';
-import logo from '../images/logo.png';
+import { setItems } from '../modules/todo';
+import axios, { AxiosResponse } from 'axios';
+import styled from 'styled-components';
 import { Colors } from '../components/utils/_var';
 import { Alertbox, Backdrop, InputField } from '../components/UserComponents';
 import CloseButton from '../components/CloseButton';
+import logo from '../images/logo.png';
 
 export const LoginView = styled.div`
   box-sizing: border-box;
@@ -108,7 +109,31 @@ function Login({ signup, handleModal, handleMessage, handleNotice }: LoginProp) 
             .then((res: AxiosResponse<any>) => {
               dispatch(userLogin(token, res.data.data.userId));
               localStorage.setItem('userId', JSON.stringify(res.data.data.userId));
-              localStorage.setItem('accessTokenTime', String(new Date().getTime()));
+            })
+            .then(() => {
+              axios
+                .get(process.env.REACT_APP_API_URL + '/todo', {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  }
+                })
+                .then((res: AxiosResponse<any>) => {
+                  const todoList = res.data.data.userTodo;
+                  const todoItems: Array<object> = [];
+                  const doingItems: Array<object> = [];
+                  const doneItems: Array<object> = [];
+                  todoList.map((el: any) => {
+                    if (el.type === 'todo') {
+                      todoItems.push(el);
+                    } else if (el.type === 'doing') {
+                      doingItems.push(el);
+                    } else if (el.type === 'done') {
+                      doneItems.push(el);
+                    }
+                  });
+                  dispatch(setItems(todoItems, doingItems, doneItems));
+                });
             });
         })
         .catch((error) => {
@@ -153,7 +178,9 @@ function Login({ signup, handleModal, handleMessage, handleNotice }: LoginProp) 
         <LoginButton onClick={handleLoginRequest}>로그인</LoginButton>
         <div>
           <SignupSpan color={Colors.lightGray}>아직 회원이 아니신가요?</SignupSpan>
-          <SignupSpan color={Colors.green} onClick={goSignup}>회원가입</SignupSpan>
+          <SignupSpan color={Colors.green} onClick={goSignup}>
+            회원가입
+          </SignupSpan>
         </div>
         <Alertbox>{errorMsg}</Alertbox>
       </LoginView>

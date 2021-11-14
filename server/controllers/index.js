@@ -8,5 +8,6 @@ module.exports = {
   getTodo: require('./mainpage/getTodo'),
   makeTodo: require('./mainpage/makeTodo'),
   editTodo: require('./mainpage/editTodo'),
+  editType: require('./mainpage/editType'),
   deleteTodo: require('./mainpage/deleteTodo')
 };

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../modules';
 import { userLogout } from '../modules/user';
+import { setItems } from '../modules/todo';
 import axios from 'axios';
 import { Colors } from '../components/utils/_var';
 import logo from '../images/logo.png';
@@ -80,6 +81,7 @@ function Header({ login, signup, modal, handleMessage, handleNotice }: HeaderPro
       )
       .then(() => {
         dispatch(userLogout());
+        dispatch(setItems([], [], []));
         localStorage.clear();
         handleNotice(true);
         handleMessage('로그아웃 성공!');

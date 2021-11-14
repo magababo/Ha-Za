@@ -8,11 +8,13 @@ module.exports = async (req, res) => {
     if (!accessTokenData) {
       return res.status(401).send({ message: "You're not logged in" });
     } else {
-      // id: to do 아이템의 id
       const { id, type, content } = req.body;
 
       const todoItem = await todos.findOne({
-        where: { id: id }
+        where: {
+          userId: accessTokenData.id,
+          todoId: id
+        }
       });
 
       if (todoItem) {
@@ -22,7 +24,10 @@ module.exports = async (req, res) => {
             content: content
           },
           {
-            where: { id: id }
+            where: {
+              userId: accessTokenData.id,
+              todoId: id
+            }
           }
         );
 

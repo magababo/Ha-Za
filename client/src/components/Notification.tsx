@@ -145,7 +145,7 @@ function Notification({ modal, message, handleNotice, handleMessage }: NotiProp)
             }}>
             메인화면으로
           </NoticeButton>
-        ) : message === '비밀번호가 수정되었습니다.' ? (
+        ) : message === '비밀번호가 변경되었습니다.' ? (
           <NoticeClose
             onClick={() => {
               window.location.replace('/mypage');
