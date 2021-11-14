@@ -15,7 +15,7 @@ export const MypageWrapper = styled.div`
 `;
 
 export const MypageView = styled.div`
-  margin: 4rem auto;
+  margin: 6rem auto;
   padding-top: 0.7rem;
   box-sizing: border-box;
   width: 19rem;
@@ -24,8 +24,7 @@ export const MypageView = styled.div`
   text-align: center;
 
   input:disabled {
-    background: ${Colors.lightGray};
-    color: ${Colors.gray};
+    background: ${Colors.mediumGray};
   }
 `;
 
@@ -110,7 +109,7 @@ const Mypage = ({ modal, handleMessage, handleNotice }: MypageProp) => {
 
   const handleEditRequest = () => {
     if (userInfo.password === '') {
-      setErrorMsg('수정할 비밀번호를 입력해주세요');
+      setErrorMsg('변경할 비밀번호를 입력해주세요');
     } else if (checkPassword !== true) {
       setErrorMsg('비밀번호 형식을 확인해주세요');
     } else if (checkRetypePassword !== true) {
@@ -127,7 +126,7 @@ const Mypage = ({ modal, handleMessage, handleNotice }: MypageProp) => {
         .then((res) => {
           if (res.status === 200) {
             handleNotice(true);
-            handleMessage('비밀번호가 수정되었습니다.');
+            handleMessage('비밀번호가 변경되었습니다.');
           }
         })
         .catch((error) => {
@@ -149,7 +148,11 @@ const Mypage = ({ modal, handleMessage, handleNotice }: MypageProp) => {
         <MypageView>
           <MypageInputContainer>
             <InputField disabled placeholder={userID} />
-            <InputField type="password" onChange={inputCheck('password')} placeholder="비밀번호" />
+            <InputField
+              type="password"
+              onChange={inputCheck('password')}
+              placeholder="비밀번호 (영문, 숫자 반드시 포함)"
+            />
             <InputField
               type="password"
               onChange={handleCheckPassword}

@@ -6,8 +6,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { Colors } from 'src/components/utils/_var';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import {
   DragDropContext,
   Draggable,
@@ -37,13 +36,16 @@ interface IMoveResult {
   droppable3: Item[];
 }
 
-// container overflow
-
 const MainpageWrapper = styled.div`
   min-height: calc(100vh - 137px);
   width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding-top: 1rem;
+  .container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
   .title {
     color: ${Colors.mediumGray};
     margin-bottom: 0.5rem;
@@ -67,12 +69,15 @@ const MainpageWrapper = styled.div`
 `;
 
 const AddButton = styled.button`
+  text-align: left;
+  justify-content: center;
   cursor: pointer;
   background-color: transparent;
   color: ${Colors.lightGray};
   outline: none;
   border: none;
-  margin-bottom: 0.5rem;
+  margin: 0 auto 1rem;
+  padding-left: 0.8rem;
   font-size: 1rem;
   &:hover {
     color: ${Colors.green};
@@ -81,6 +86,7 @@ const AddButton = styled.button`
 
 const AddInput = styled.input`
   outline: none;
+  margin-left: 0.8rem;
 `;
 type MainpageProp = {
   modal: () => void;
@@ -131,8 +137,13 @@ const getItemStyle = (draggableStyle: any, isDragging: boolean): {} => ({
 const getListStyle = (isDraggingOver: boolean): {} => ({
   backgroundColor: 'black',
   padding: grid,
-  width: 300,
-  height: '70vh',
+  width: '30vw',
+  minWidth: 230,
+  maxWidth: 300,
+  height: '71vh',
+  marginRight: 10,
+  marginLeft: 10,
+  overflow: 'scroll',
   borderRadius: 4,
   border: `1px solid ${Colors.darkGray}`
 });
@@ -147,6 +158,8 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
   let tempDoings: Array<any> = todoList.doingItem;
   let tempDones: Array<any> = todoList.doneItem;
 
+  const totalLength = tempTodos.length + tempDoings.length + tempDones.length;
+  console.log(totalLength);
   const id2List = {
     droppable: 'items',
     droppable2: 'doing',
@@ -320,7 +333,6 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
     else setAddOpen(false);
   };
   const handleEditOpen = (item: any) => {
-    // console.log(item.id);
     if (!editOpen) {
       setEditOpen(true);
       setEditId(item.id);
@@ -328,10 +340,10 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
     } else if (editOpen && item.id === editId) {
       if (editInput.length < 1) {
         handleNotice(true);
-        handleMessage('할 일을 입력해주세요');
-      } else if (editInput.length > 15) {
+        handleMessage('변경할 할 일을 입력해주세요');
+      } else if (editInput.length > 30) {
         handleNotice(true);
-        handleMessage('할 일은 15자 내로 입력해주세요');
+        handleMessage('할 일은 30자 내로 입력해주세요');
       } else {
         if (isLogin) {
           axios
@@ -370,9 +382,9 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
   };
 
   const addTodo = () => {
-    if (input.length > 15) {
+    if (input.length > 30) {
       handleNotice(true);
-      handleMessage('할 일은 15자 내로 입력해주세요');
+      handleMessage('할 일은 30자 내로 입력해주세요');
     } else if (input.length < 1) {
       handleNotice(true);
       handleMessage('할 일을 입력해주세요');
@@ -414,6 +426,15 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
   const handleEditInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditInput(e.target.value);
   };
+
+  const handleEditCancel = () => {
+    if (editOpen) {
+      setEditOpen(false);
+      setEditId(null);
+      setEditInput('');
+    }
+  };
+
   const handleDelete = (item: any) => {
     if (isLogin) {
       axios
@@ -451,7 +472,7 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
         </>
       )}
       <DragDropContext onDragEnd={onDragEnd}>
-        <Flex justifyContent={'space-between'}>
+        <div className="container">
           <Flex flexDirection="column">
             <Droppable droppableId="droppable">
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
@@ -460,6 +481,9 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
                   {...provided.droppableProps}
                   style={getListStyle(snapshot.isDraggingOver)}>
                   <div className="title">To Do</div>
+                  {totalLength === 0 ? (
+                    <div style={{ color: Colors.lightGray, fontSize: '.9rem' }}>- 할 일을 추가해주세요 -</div>
+                  ) : null}
                   {todos.items.map((item, index) => (
                     <Draggable key={item.id} draggableId={item.id} index={index}>
                       {(
@@ -487,12 +511,21 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
                                 icon={faEdit}
                                 size="1x"
                               />
-                              <FontAwesomeIcon
-                                className="icon"
-                                onClick={() => handleDelete({ id: item.id, type: 'todo' })}
-                                icon={faTrash}
-                                size="1x"
-                              />
+                              {editOpen && editId === item.id ? (
+                                <FontAwesomeIcon
+                                  className="icon"
+                                  onClick={handleEditCancel}
+                                  icon={faTimes}
+                                  size="1x"
+                                />
+                              ) : (
+                                <FontAwesomeIcon
+                                  className="icon"
+                                  onClick={() => handleDelete({ id: item.id, type: 'todo' })}
+                                  icon={faTrash}
+                                  size="1x"
+                                />
+                              )}
                             </div>
                           </div>
                         </div>
@@ -528,7 +561,11 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
                             providedDraggable2.draggableProps.style,
                             snapshotDraggable2.isDragging
                           )}>
-                          {item.content}
+                          {editOpen && item.id === editId ? (
+                            <input onChange={handleEditInput} />
+                          ) : (
+                            item.content
+                          )}
                           <div className="icon-container">
                             <FontAwesomeIcon
                               className="icon"
@@ -536,12 +573,21 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
                               icon={faEdit}
                               size="1x"
                             />
-                            <FontAwesomeIcon
-                              className="icon"
-                              onClick={() => handleDelete({ id: item.id, type: 'doing' })}
-                              icon={faTrash}
-                              size="1x"
-                            />
+                            {editOpen && editId === item.id ? (
+                              <FontAwesomeIcon
+                                className="icon"
+                                onClick={handleEditCancel}
+                                icon={faTimes}
+                                size="1x"
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                className="icon"
+                                onClick={() => handleDelete({ id: item.id, type: 'doing' })}
+                                icon={faTrash}
+                                size="1x"
+                              />
+                            )}
                           </div>
                         </div>
                       </div>
@@ -576,7 +622,11 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
                             providedDraggable3.draggableProps.style,
                             snapshotDraggable3.isDragging
                           )}>
-                          {item.content}
+                          {editOpen && item.id === editId ? (
+                            <input onChange={handleEditInput} />
+                          ) : (
+                            item.content
+                          )}
                           <div className="icon-container">
                             <FontAwesomeIcon
                               className="icon"
@@ -584,12 +634,21 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
                               icon={faEdit}
                               size="1x"
                             />
-                            <FontAwesomeIcon
-                              className="icon"
-                              onClick={() => handleDelete({ id: item.id, type: 'done' })}
-                              icon={faTrash}
-                              size="1x"
-                            />
+                            {editOpen && editId === item.id ? (
+                              <FontAwesomeIcon
+                                className="icon"
+                                onClick={handleEditCancel}
+                                icon={faTimes}
+                                size="1x"
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                className="icon"
+                                onClick={() => handleDelete({ id: item.id, type: 'done' })}
+                                icon={faTrash}
+                                size="1x"
+                              />
+                            )}
                           </div>
                         </div>
                       </div>
@@ -600,7 +659,7 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
               </div>
             )}
           </Droppable>
-        </Flex>
+        </div>
       </DragDropContext>
     </MainpageWrapper>
   );
