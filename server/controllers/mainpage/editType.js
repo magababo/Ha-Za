@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
       } else if (todoTypes.includes('todo') && todoTypes.includes('doing')) {
         const todoIds = todoList.todo.map((el) => el.id);
         const doingIds = todoList.doing.map((el) => el.id);
-        await todos.update({ type: 'doing' }, { where: { todoId: todoIds } });
+        await todos.update({ type: 'todo' }, { where: { todoId: todoIds } });
         await todos.update({ type: 'doing' }, { where: { todoId: doingIds } });
       }
 
