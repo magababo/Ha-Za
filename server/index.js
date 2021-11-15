@@ -26,7 +26,7 @@ app.delete('/withdrawal', controllers.withdrawal);
 app.get('/todo', controllers.getTodo);
 app.post('/todo', controllers.makeTodo);
 app.patch('/todo', controllers.editTodo);
-app.patch('/type', controllers.editType),
+app.patch('/type', controllers.editType);
 app.delete('/todo', controllers.deleteTodo);
 
 const HTTPS_PORT = process.env.HTTPS_PORT || 80;
