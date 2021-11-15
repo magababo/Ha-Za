@@ -159,7 +159,7 @@ function Mainpage({ modal, handleMessage, handleNotice }: MainpageProp) {
   let tempDones: Array<any> = todoList.doneItem;
 
   const totalLength = tempTodos.length + tempDoings.length + tempDones.length;
-  console.log(totalLength);
+  // console.log(totalLength);
   const id2List = {
     droppable: 'items',
     droppable2: 'doing',
