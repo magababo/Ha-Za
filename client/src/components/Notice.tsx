@@ -21,7 +21,7 @@ const NoticeWrapper = styled.div<InnerScreen>`
   }
   .notice {
     position: absolute;
-    width: 22rem;
+    width: 95vw;
     height: 3.5rem;
     top: 0;
     bottom: 0;
@@ -29,7 +29,7 @@ const NoticeWrapper = styled.div<InnerScreen>`
     right: 0;
     margin: auto;
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: ${Colors.lightGray};
   }
 `;
